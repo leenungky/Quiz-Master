@@ -1,5 +1,13 @@
-require 'rails_helper'
+require 'spec_helper'
 
-RSpec.describe Answer, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+
+describe Hash do
+  it "should return a blank instance" do
+    
+  end
 end
+=begin
+RSpec.describe Answer, type: :model do
+  
+end
+=end

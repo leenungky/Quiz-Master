@@ -66,6 +66,14 @@ RSpec.describe QuestionsController, type: :controller do
       expect(assigns(:question)).to eq(question)
     end
   end
+  
+   describe "GET #question" do
+    it "assigns to get question " do
+      question = Question.create! valid_attributes
+      get :answer, {:id => question.to_param}, valid_session
+      expect(assigns(:question)).to eq(question)
+    end
+  end
 
   describe "POST #create" do
     context "with valid params" do

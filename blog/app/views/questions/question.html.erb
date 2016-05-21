@@ -1,0 +1,35 @@
+<h1>Answer questions</h1>
+<%= link_to 'List question', questions_path %> 
+
+<%= form_for(@question, :url => answer_questions_url(@question), :html => { :multipart => true, :method=>"post" })  do |f| %>
+
+  <% if @question.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@question.errors.count, "error") %> prohibited this post from being saved:</h2>
+      <ul>
+      <% @questions.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :question %> : 
+    <%= @question.question %><br>
+  </div>
+  <div class="field">
+    <%= f.label :answer %>:
+    <%= f.text_field :answer, :value=>"" %><br>
+  </div>
+
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+	<br/>
+	<%= notice %>
+<% end %>
+
+
+
+

@@ -25,9 +25,9 @@ class QuestionsController < ApplicationController
 
   # POST /questions
   # POST /questions.json
-  def create
-    @question = Question.new(question_params)
-
+  def create	
+	question_param = question_params.merge(:words => in_words(question_params["answer"].to_i))
+    @question = Question.new(question_param)
     respond_to do |format|
       if @question.save
         format.html { redirect_to @question, notice: 'Question was successfully created.' }
@@ -37,20 +37,22 @@ class QuestionsController < ApplicationController
         format.json { render json: @question.errors, status: :unprocessable_entity }
       end
     end
+	#=end
   end
 
   # PATCH/PUT /questions/1
   # PATCH/PUT /questions/1.json
   def update
-    respond_to do |format|
-      if @question.update(question_params)
+	question_param = question_params.merge(:words => in_words(question_params["answer"].to_i))
+	respond_to do |format|
+      if @question.update(question_param)
         format.html { redirect_to @question, notice: 'Question was successfully updated.' }
         format.json { render :show, status: :ok, location: @question }
       else
         format.html { render :edit }
         format.json { render json: @question.errors, status: :unprocessable_entity }
       end
-    end
+    end	
   end
 
   # DELETE /questions/1
@@ -68,13 +70,27 @@ class QuestionsController < ApplicationController
   
   
   def answer        
-	  if (@question.answer == params[:question][:answer] )
-		flash[:notice] = @question.question + ": " + params[:question][:answer] + " correct"
-		redirect_to question_questions_path(@question);
-	  else
-		flash[:notice] = @question.question + ": " + params[:question][:answer] + " incorrect"
-		redirect_to question_questions_path(@question);		
-	  end
+	answer = '';
+	if (params[:question][:answer].present?)
+		is_number = is_number?( params[:question][:answer])
+		if (is_number)
+			if (@question.answer == params[:question][:answer].to_i)
+				answer = " correct" 
+			else
+				answer = " incorrect" 
+			end
+		else
+			if (@question.words == params[:question][:answer])
+				answer = " correct" 
+			else
+				answer = " incorrect" 
+			end
+		end
+	else 
+		answer = " incorrect" 
+	end
+	flash[:notice] = @question.question + ": " + params[:question][:answer].to_s + " "  + answer
+	redirect_to question_questions_path(@question);		
   end
 
   private
@@ -87,4 +103,56 @@ class QuestionsController < ApplicationController
     def question_params
       params.require(:question).permit(:question, :answer)
     end
+	
+	def in_words(int)
+	  numbers_to_name = {
+		  1000000 => "million",
+		  1000 => "thousand",
+		  100 => "hundred",
+		  90 => "ninety",
+		  80 => "eighty",
+		  70 => "seventy",
+		  60 => "sixty",
+		  50 => "fifty",
+		  40 => "forty",
+		  30 => "thirty",
+		  20 => "twenty",
+		  19=>"nineteen",
+		  18=>"eighteen",
+		  17=>"seventeen", 
+		  16=>"sixteen",
+		  15=>"fifteen",
+		  14=>"fourteen",
+		  13=>"thirteen",              
+		  12=>"twelve",
+		  11 => "eleven",
+		  10 => "ten",
+		  9 => "nine",
+		  8 => "eight",
+		  7 => "seven",
+		  6 => "six",
+		  5 => "five",
+		  4 => "four",
+		  3 => "three",
+		  2 => "two",
+		  1 => "one"
+		}
+	  str = ""
+	  numbers_to_name.each do |num, name|
+		if int == 0
+		  return str
+		elsif int.to_s.length == 1 && int/num > 0
+		  return str + "#{name}"      
+		elsif int < 100 && int/num > 0
+		  return str + "#{name}" if int%num == 0
+		  return str + "#{name} " + in_words(int%num)
+		elsif int/num > 0
+		  return str + in_words(int/num) + " #{name} " + in_words(int%num)
+		end
+	  end
+	end
+	
+	def is_number? string
+	  true if Float(string) rescue false
+	end
 end
